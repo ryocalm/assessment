@@ -1,4 +1,65 @@
 'use strict';
+
+const userNameInput = document.getElementById('user-name');
+const assessmentButton = document.getElementById('assessment');
+const resultDevided = document.getElementById('result-area');
+const tweetDevided = document.getElementById('tweet-area');
+
+/**
+ * 指定した要素の子要素を全て削除する
+ * @param {HTMLElement} element HTML の要素
+ */
+function removeAllChildren(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+function doAssessmentAndDisplay() {
+  const userName = userNameInput.value;
+  if (userName.length === 0) {
+    return;
+  }
+  console.log(userName);
+  // 診断結果表示エリアの作成
+  removeAllChildren(resultDevided);
+
+  const header = document.createElement('h3');
+  header.innerText = '診断結果';
+  resultDevided.appendChild(header);
+
+  const paragraph = document.createElement('p');
+  const result = assessment(userName);
+  paragraph.innerText = result;
+  resultDevided.appendChild(paragraph);
+
+  // ツイートエリアの作成
+  removeAllChildren(tweetDevided);
+  const anchor = document.createElement('a')
+  const hrefValue = 'https://twitter.com/intent/tweet?button_hashtag='
+    + encodeURIComponent('あなたのいいところ')
+    + '&ref_src=twsrc%5Etfw';
+  anchor.setAttribute('href', hrefValue);
+  anchor.className = 'twitter-hashtag-button';
+  anchor.setAttribute('data-text', result);
+  anchor.setAttribute('data-show-count', false);
+  anchor.innerText = 'Tweet #あなたのいいところ';
+  tweetDevided.appendChild(anchor);
+
+  const script = document.createElement('script');
+  script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
+  script.setAttribute('charset', 'utf-8');
+  tweetDevided.appendChild(script);
+}
+
+assessmentButton.onclick = doAssessmentAndDisplay;
+
+userNameInput.onkeydown = event => {
+  if (event.key === 'Enter') {
+    doAssessmentAndDisplay();
+  }
+}
+
 const answers = [
   '{userName}のいいところは声です。{userName}の特徴的な声は皆を惹きつけ、心に残ります。',
   '{userName}のいいところはまなざしです。{userName}に見つめられた人は、気になって仕方がないでしょう。',
@@ -24,7 +85,6 @@ const answers = [
  * @return {string} 診断結果
  */
 function assessment(userName) {
-  // TODO 診断結果を実装する
   // 全ての文字のコード番号を取得して足し合わせる
   let sumOfCharCode = 0;
   for (let i = 0; i < userName.length; i++) {
@@ -38,6 +98,7 @@ function assessment(userName) {
   return result.replace(/\{userName\}/g, userName);
 }
 
+// テストコード
 console.log(assessment('太郎'));
 console.assert(
   assessment('太郎') ===
